@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.1.0/dist/av-min.js"></script>
+    <script src="http://momentjs.cn/downloads/moment.js"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <style>
+        .el-card {
+            margin-top: 10px;
+        }
+
+        .title {
+            color: #606266;
+        }
+
+        .text {
+            color: #303133;
+        }
+
+        .date {
+            color: #909399;
+            font-size: 13px;
+            text-align: right;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="app">
+        <el-input v-model="keyword" placeholder="请输入内容" prefix-icon="el-icon-search" clearable @change="search">
+        </el-input>
+
+        <el-card class="box-card" v-for="item in list">
+            <div slot="header" class="title">
+                {{item.attributes.from}}
+            </div>
+            <div class="text">
+                {{item.attributes.text}}
+            </div>
+            <div class="date">
+                {{moment(item.createdAt).format("YYYY-MM-DD HH:mm:ss")}}
+            </div>
+        </el-card>
+
+    </div>
+</body>
+
+<script type="text/javascript">
+
+    AV.init({
+        appId: "xI9BzgJQRMzp8lzToNFMmcvn-gzGzoHsz",
+        appKey: "4MuKVdSm9j8CU3n8cfu4HJDT",
+        serverURLs: "https://xi9bzgjq.lc-cn-n1-shared.com"
+    });
+
+    var vm = new Vue({
+        el: '#app',
+
+        data: {
+            list: [],
+            keyword: "",
+        },
+        methods: {
+            search: function (e) {
+                console.log(e);
+                find(e);
+            }
+        }
+    });
+
+    function find(keyword) {
+        let query = new AV.Query('sms');
+        query.limit(10);
+
+        if (keyword) {
+            query.contains("from", keyword);
+        }
+        query.descending('createdAt');
+
+        query.find().then(function (res) {
+            console.log(res);
+            vm.list = res
+        });
+    }
+
+    find();
+</script>
+
+</html>
